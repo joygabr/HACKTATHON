@@ -7,7 +7,7 @@ public record CompeticaoDto(
         String nome,
 
         @NotBlank
-        String Modalidade,
+        String modalidade,
 
         @NotBlank
         String presenca

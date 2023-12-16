@@ -3,12 +3,16 @@ package com.grupodez.vsconnect.controllers;
 import com.grupodez.vsconnect.models.CompeticaoModel;
 import com.grupodez.vsconnect.repositories.CompeticaoRepository;
 import dtos.CompeticaoDto;
+import dtos.DadosAtualizacaoCompeticao;
+import dtos.DadosListagemCompeticao;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,13 +38,21 @@ public class CompeticaoController {
         return ResponseEntity.status(HttpStatus.OK).body(competicaoBuscado.get());
     }
 
-    @RequestMapping
     @PostMapping
-    public ResponseEntity<Object> criarUsuario(@ModelAttribute @Valid CompeticaoDto competicaoDto){
-
-        CompeticaoModel competicaoModel = new CompeticaoModel();
-        BeanUtils.copyProperties(competicaoDto, competicaoModel);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(competicaoModel));
+    @Transactional
+    public ResponseEntity cadastrar(@RequestBody @Valid CompeticaoDto dados) {
+        repository.save(new CompeticaoModel(dados));
+        return ResponseEntity.ok(dados);
     }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoCompeticao dados) {
+        var medico = repository.getReferenceById(dados.id());
+        medico.atualizarInformacoes(dados);
+
+        return ResponseEntity.ok(new DadosListagemCompeticao(medico));
+    }
+
+
 }
